@@ -5,7 +5,7 @@ import time
 import pyautogui
 import pygetwindow as gw
 import qrcode
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 from mss import mss
 from pyzbar.pyzbar import decode
 
@@ -17,6 +17,7 @@ last_qr_bytes = None
 last_qr_time = 0
 
 def qrmai_action():
+    img_io = io.BytesIO()
     # 根据配置选择窗口标题
     window_title = "舞萌丨中二" if config.get('standalone_mode', False) else "微信"
     wechat = gw.getWindowsWithTitle(window_title)[0]
@@ -33,22 +34,36 @@ def qrmai_action():
 
     time.sleep(2)
     move_click(config["p2"][0], config["p2"][1])
-
+    decoded_objects = None
     wechat.minimize()
-    time.sleep(2)
-    with mss() as sct:
-        # 截取整个屏幕
-        screenshot = sct.grab(sct.monitors[1])  # monitors[1] 表示第一个显示器
-        image = Image.frombytes("RGB", screenshot.size, screenshot.rgb)
+    for i in range(config["decode"]["retry_count"]):
+        time.sleep(config["decode"]["time"] / config["decode"]["retry_count"])
+        with mss() as sct:
+            # 截取整个屏幕
+            screenshot = sct.grab(sct.monitors[1])  # monitors[1] 表示第一个显示器
+            image = Image.frombytes("RGB", screenshot.size, screenshot.rgb)
 
-    # 解码二维码
-    decoded_objects = decode(image)
+        # 解码二维码
+        decoded_objects = decode(image)
+        if decoded_objects and len(decoded_objects) > 0:
+            break
+        else:
+            if i == 9:
+                window = gw.getWindowsWithTitle("微信")[0]
+                window.close()
+                im = Image.new("L", (100, 100), "#FFFFFF")
+                font= ImageFont.load_default(size=23)
+                draw = ImageDraw.Draw(im)
+                draw.text((0, 0), "Unable\nto load\nQRCode\n(Timeout)", font=font, fill="#000000")
+                im.save(img_io, format='PNG')
+                img_io.seek(0)
 
+                return img_io
+            print(f"二维码解码失败 过{config["decode"]["time"] / config["decode"]["retry_count"]}s后重试 ({i+1}/{config["decode"]["retry_count"]})")
     qr_img = qrcode.make(decoded_objects[0].data.decode("utf-8"))
 
     import os
     # 如果skin.png存在
-    img_io = io.BytesIO()
     if "skin.png" in os.listdir():
         skin = Image.open("skin.png")
         qr_img = qr_img.convert('RGBA')
@@ -85,6 +100,7 @@ def qrmai():
     # 如果有正在进行的请求，等待直到请求完成
     while request_lock:
         time.sleep(0.5)
+        print("等待请求完成...")
         
     # 检查缓存是否有效
     if last_qr_bytes and (current_time - last_qr_time) < cache_duration:

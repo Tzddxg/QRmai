@@ -5,5 +5,9 @@
   "host": "0.0.0.0",
   "port": 5000,
   "cache_duration": 60,
-  "standalone_mode": false
+  "standalone_mode": false,
+  "decode": {
+    "time": 10,
+    "retry_count": 10
+  }
 }

@@ -49,6 +49,10 @@ python main.py
   "host": "127.0.0.1", // 服务器地址 设置成0.0.0.0即可内网访问
   "port": 5000, // 服务器端口
   "cache_duration": 60, // 二维码缓存时间（秒），默认60秒
-  "standalone_mode": false // "舞萌丨中二"公众号是否为使用独立窗口显示
+  "standalone_mode": false, // "舞萌丨中二"公众号是否为使用独立窗口显示
+  "decode": { // 解码重试次数及时间 每次重试的时间为 time除以retry_count
+    "time": 10,  // 超时时间
+    "retry_count": 10  // 重试次数
+  }
 }
 ```
