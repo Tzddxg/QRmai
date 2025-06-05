@@ -9,5 +9,6 @@
   "decode": {
     "time": 10,
     "retry_count": 10
-  }
+  },
+  "skin_format": "new"
 }

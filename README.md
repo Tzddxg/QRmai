@@ -54,5 +54,6 @@ python main.py
     "time": 10,  // 超时时间
     "retry_count": 10  // 重试次数
   }
+  "skin_format": "new" // 皮肤格式 new为新版皮肤 二维码居中 old为旧版皮肤 二维码靠下
 }
 ```

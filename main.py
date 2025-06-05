@@ -74,7 +74,10 @@ def qrmai_action():
                 if r > 200 and g > 200 and b > 200:  # 判断是否为接近白色的像素
                     qr_img.putpixel((x, y), (255, 255, 255, 0))  # 替换为透明像素
         resized_qr = qr_img.resize((576, 576))
-        skin.paste(resized_qr, (106, 1060), mask=resized_qr)  # 使用 resize 后的图像作为 mask
+        if config["skin_format"] == "new":
+            skin.paste(resized_qr, (106, 638), mask=resized_qr)  # 使用 resize 后的图像作为 mask
+        else:
+            skin.paste(resized_qr, (106, 1060), mask=resized_qr)  # 使用 resize 后的图像作为 mask
 
         skin.save(img_io, format='PNG')
     else:
