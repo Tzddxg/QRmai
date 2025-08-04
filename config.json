@@ -1,6 +1,6 @@
 {
-  "p1": [1087, 799],
-  "p2": [945, 682],
+  "p1": [974, 827],
+  "p2": [853, 709],
   "token": "qrmai",
   "host": "0.0.0.0",
   "port": 5000,
@@ -10,5 +10,7 @@
     "time": 10,
     "retry_count": 10
   },
-  "skin_format": "new"
+  "qr_location_x": 102,
+  "qr_location_y": 632,
+  "qr_size": 590
 }

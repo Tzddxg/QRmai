@@ -4,6 +4,7 @@ import time
 
 import pyautogui
 import pygetwindow as gw
+import psutil
 import qrcode
 from PIL import Image, ImageDraw, ImageFont
 from mss import mss
@@ -73,11 +74,11 @@ def qrmai_action():
                 r, g, b, a = qr_img.getpixel((x, y))  # 获取当前像素的颜色值
                 if r > 200 and g > 200 and b > 200:  # 判断是否为接近白色的像素
                     qr_img.putpixel((x, y), (255, 255, 255, 0))  # 替换为透明像素
-        resized_qr = qr_img.resize((576, 576))
-        if config["skin_format"] == "new":
-            skin.paste(resized_qr, (106, 638), mask=resized_qr)  # 使用 resize 后的图像作为 mask
-        else:
-            skin.paste(resized_qr, (106, 1060), mask=resized_qr)  # 使用 resize 后的图像作为 mask
+        qr_location_x = config["qr_location_x"]
+        qr_location_y = config["qr_location_y"]
+        qr_size = config["qr_size"]
+        resized_qr = qr_img.resize((qr_size,qr_size))
+        skin.paste(resized_qr, (qr_location_x,qr_location_y), mask=resized_qr)  # 使用 resize 后的图像作为 mask
 
         skin.save(img_io, format='PNG')
     else:
@@ -85,8 +86,21 @@ def qrmai_action():
 
     img_io.seek(0)
 
-    window = gw.getWindowsWithTitle("微信")[0]
-    window.close()
+    '''window = gw.getWindowsWithTitle("微信")[0]
+    #window.close()'''
+    #检测进程，杀掉带有WeChatAppEx的进程（关闭微信内置浏览器窗口）
+    for proc in psutil.process_iter(['name']):
+        if "wechatappex" in proc.info['name'].lower():
+            try:
+                proc.kill()
+            except:
+                break
+    #显示微信窗口
+    wechat_windows = gw.getWindowsWithTitle("微信")
+    wechat_window = wechat_windows[0]
+    #最大化后是全屏，需要restore来恢复原来窗口大小
+    wechat_window.maximize()
+    wechat_window.restore()
 
     return img_io
 
